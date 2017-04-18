@@ -1,6 +1,12 @@
 create or replace package body dbunit is
   -- Current notification mode
   NOTIFICATION_MODE integer := WITH_EXCEPTIONS;
+  
+  -- Current exception number
+  EXCEPTION_NUMBER constant integer := -20000;
+  
+  -- Current date format
+  DATE_FORMAT constant varchar2(21) := 'dd.mm.yyyy hh24:mi:ss';
 
   -- Set notification mode for assertions
   procedure set_notification_mode(p_mode integer := WITH_EXCEPTIONS)
@@ -15,7 +21,7 @@ create or replace package body dbunit is
   function format(message varchar2) return varchar2
   is
   begin
-    return initcap(trim(message)) || 
+    return initcap(trim(message)) ||
       case when length(trim(message)) > 0 then '     ' else '' end;
   end;
 
@@ -24,7 +30,7 @@ create or replace package body dbunit is
   is
   begin
     if (NOTIFICATION_MODE = WITH_EXCEPTIONS) then
-      raise_application_error(-20000, message);
+      raise_application_error(EXCEPTION_NUMBER, message);
     end if;
 
     dbms_output.put_line(message);
@@ -60,7 +66,7 @@ create or replace package body dbunit is
   is
   begin
     if (not (expected = actual)) then
-      raiseError(format(message) || 'Expected ' || to_char(expected, 'dd.mm.yyyy hh24:mi:ss') || ', got ' || to_char(actual, 'dd.mm.yyyy hh24:mi:ss'));
+      raiseError(format(message) || 'Expected ' || to_char(expected, DATE_FORMAT) || ', got ' || to_char(actual, DATE_FORMAT));
     end if;
   end;
 
@@ -101,7 +107,7 @@ create or replace package body dbunit is
   is
   begin
     if (expected = actual) then
-      raiseError(format(message) || 'Expected ' || to_char(expected, 'dd.mm.yyyy hh24:mi:ss') || ' IS EQUAL to ' || to_char(actual, 'dd.mm.yyyy hh24:mi:ss'));
+      raiseError(format(message) || 'Expected ' || to_char(expected, DATE_FORMAT) || ' IS EQUAL to ' || to_char(actual, DATE_FORMAT));
     end if;
   end;
 
